@@ -70,7 +70,10 @@ jobs:
     
         - name: Configure SSH Access to Public EC2 Instance
           run: |
-            
+                 mkdir -p ~/.ssh
+                  echo "${{ secrets.PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+                  chmod 600 ~/.ssh/id_rsa
+                    
                  ssh -i ${{ secrets.PRIVATE_KEY }} ubuntu@${{ secrets.PUBLIC_EC2_IP }} echo "SSH connection successful"
                  
         - name: Run Ansible playbook to install Nginx
