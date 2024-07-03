@@ -70,11 +70,11 @@ jobs:
     
         - name: Configure SSH Access to Public EC2 Instance
           run: |
-                mkdir -p ~/.ssh
-                ssh-keyscan -H 44.201.88.31 >> ~/.ssh/known_hosts
+               mkdir -p ~/.ssh
                 echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
                 chmod 600 ~/.ssh/id_rsa
-                 ssh -i ~/.ssh/id_rsa ec2-user@44.201.88.31 echo "SSH connection successful"
+                ssh-keyscan -H ${{ secrets.PUBLIC_EC2_IP }} >> ~/.ssh/known_hosts
+                 ssh -i ~/.ssh/id_rsa ec2-user@${{ secrets.PUBLIC_EC2_IP }} echo "SSH connection successful"
                  
         - name: Run Ansible playbook to install Nginx
           run: |
