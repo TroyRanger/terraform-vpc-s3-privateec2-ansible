@@ -25,10 +25,11 @@ jobs:
           sudo apt-get update && sudo apt-get install -y terraform
 
       - name: Install AWS CLI
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
+          run: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install --update
+
 
       - name: Install Ansible
         run: |
@@ -57,7 +58,7 @@ jobs:
         run: terraform apply -auto-approve
         env:
           TF_VAR_key_name: ${{ secrets.KEY_PAIR_NAME }}
-          TF_VAR_vpc_name: "my-vpc" # Replace with your VPC name or use a variable
+          TF_VAR_vpc_name: "troy-nonprod-01" # Replace with your VPC name or use a variable
 
   ansible:
     runs-on: ubuntu-latest
