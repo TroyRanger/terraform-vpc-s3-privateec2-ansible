@@ -1,0 +1,26 @@
+---
+- name: Deploy index.html to Nginx servers
+  hosts: private
+  become: true
+  tasks:
+    - name: Create welcome index.html file
+      template:
+        src: welcome_index.html.j2
+        dest: /usr/share/nginx/html/index.html
+      notify:
+        - restart nginx
+      tags: nginx
+
+    - name: Create goodbye index.html file
+      template:
+        src: goodbye_index.html.j2
+        dest: /usr/share/nginx/html/goodbye.html
+      notify:
+        - restart nginx
+      tags: nginx
+
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
