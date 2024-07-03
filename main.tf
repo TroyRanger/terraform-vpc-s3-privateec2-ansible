@@ -20,19 +20,6 @@ variable "key_name" {
   type        = string
 }
 
-data "aws_ami" "ubuntu" {
-  most_recent = true
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-  }
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-  owners = ["099720109477"] # Canonical
-}
-
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
   tags = {
@@ -107,7 +94,7 @@ resource "aws_security_group" "allow_ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
+   tags = {
     Name = "${var.vpc_name}-allow-ssh"
   }
 }
@@ -160,13 +147,26 @@ resource "aws_route_table_association" "private_rt2_assoc" {
   route_table_id = aws_route_table.private_rt2.id
 }
 
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  owners = ["099720109477"] # Canonical
+}
+
 resource "aws_instance" "public_instance" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.public_subnet.id
   associate_public_ip_address = true
   key_name      = var.key_name
-  security_groups = [aws_security_group.allow_ssh.name]
+  security_groups = [aws_security_group.allow_ssh.id]  # Use security group id instead of name
 
   tags = {
     Name = "${var.vpc_name}-public-instance"
@@ -179,7 +179,7 @@ resource "aws_instance" "private_instance1" {
   subnet_id     = aws_subnet.private_subnet1.id
   associate_public_ip_address = false
   key_name      = var.key_name
-  security_groups = [aws_security_group.allow_ssh.name]
+  security_groups = [aws_security_group.allow_ssh.id]  # Use security group id instead of name
 
   tags = {
     Name = "${var.vpc_name}-private-instance1"
@@ -192,7 +192,7 @@ resource "aws_instance" "private_instance2" {
   subnet_id     = aws_subnet.private_subnet2.id
   associate_public_ip_address = false
   key_name      = var.key_name
-  security_groups = [aws_security_group.allow_ssh.name]
+  security_groups = [aws_security_group.allow_ssh.id]  # Use security group id instead of name
 
   tags = {
     Name = "${var.vpc_name}-private-instance2"
