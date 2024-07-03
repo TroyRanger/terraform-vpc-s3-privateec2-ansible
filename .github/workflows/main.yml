@@ -68,11 +68,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Configure SSH Access
+      - name: Configure SSH Access to Public EC2 Instance
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.PUBLIC_EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.PUBLIC_EC2_IP }} >> ~/.ssh/known_hosts
+          ssh -i ~/.ssh/id_rsa ec2-user@${{ secrets.PUBLIC_EC2_IP }} echo "SSH connection successful"
+
 
       - name: Run Ansible playbook to install Nginx
         run: ansible-playbook -i inventory.ini nginx_install.yml
