@@ -1,26 +1,20 @@
 ---
 - name: Deploy index.html to Nginx servers
   hosts: private
-  become: true
+  become: yes  # Run tasks with sudo
+
   tasks:
     - name: Create welcome index.html file
       template:
-        src: welcome_index.html.j2
-        dest: /usr/share/nginx/html/index.html
-      notify:
-        - restart nginx
-      tags: nginx
+        src: index.html.j2  # Jinja2 template for index.html
+        dest: /usr/share/nginx/html/index.html  # Destination path on remote server
+      vars:
+        welcome_message: "Welcome to Private Instance 1"
 
     - name: Create goodbye index.html file
       template:
-        src: goodbye_index.html.j2
-        dest: /usr/share/nginx/html/goodbye.html
-      notify:
-        - restart nginx
-      tags: nginx
+        src: index.html.j2  # Jinja2 template for index.html
+        dest: /usr/share/nginx/html/goodbye.html  # Destination path on remote server
+      vars:
+        goodbye_message: "Goodbye from Private Instance 2"
 
-  handlers:
-    - name: restart nginx
-      service:
-        name: nginx
-        state: restarted
