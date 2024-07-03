@@ -70,19 +70,16 @@ jobs:
     
         - name: Configure SSH Access to Public EC2 Instance
           run: |
-            mkdir -p ~/.ssh
-            echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
-            chmod 600 ~/.ssh/id_rsa
-            ssh-keyscan -H ${{ secrets.PUBLIC_EC2_IP }} >> ~/.ssh/known_hosts
-    
-        - name: Verify SSH Connection to Public EC2 Instance
+                mkdir -p ~/.ssh
+                ssh-keyscan -H 44.201.88.31 >> ~/.ssh/known_hosts
+                echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
+                chmod 600 ~/.ssh/id_rsa
+                 ssh -i ~/.ssh/id_rsa ec2-user@44.201.88.31 echo "SSH connection successful"
+                 
+        - name: Run Ansible playbook to install Nginx
           run: |
-            ssh -i ~/.ssh/id_rsa ec2-user@${{ secrets.PUBLIC_EC2_IP }} exit
-    
-        - name: Run Ansible playbook to install Nginx on private EC2 instances
+            ansible-playbook -i inventory.ini nginx_install.yml
+        - name: Run Ansible playbook to deploy index.html
           run: |
-            ansible-playbook -i "${{ secrets.PUBLIC_EC2_IP }}," -e 'ansible_ssh_private_key_file=~/.ssh/id_rsa' nginx_install.yml
-    
-        - name: Run Ansible playbook to deploy index.html on private EC2 instances
-          run: |
-            ansible-playbook -i "${{ secrets.PUBLIC_EC2_IP }}," -e 'ansible_ssh_private_key_file=~/.ssh/id_rsa' nginx_index.yml
+            ansible-playbook -i inventory.ini nginx_index.yml
+            
