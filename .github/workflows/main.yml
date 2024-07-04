@@ -71,7 +71,7 @@ jobs:
         - name: Configure SSH Access to Public EC2 Instance
           run: |
                  mkdir -p ~/.ssh
-                  echo "${{ secrets.PRIVATE_KEY }}" | tr -d '\r' | sed 's/\\n/\n/g' > ~/.ssh/id_rsa
+                   printf "%s" "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
                   chmod 600 ~/.ssh/id_rsa
                   echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
                  ssh -i ${{ secrets.PRIVATE_KEY }} ubuntu@${{ secrets.PUBLIC_EC2_IP }} echo "SSH connection successful"
