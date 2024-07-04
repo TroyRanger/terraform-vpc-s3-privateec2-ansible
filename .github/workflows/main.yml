@@ -73,7 +73,7 @@ jobs:
                  mkdir -p ~/.ssh
                   echo "${{ secrets.PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
                   chmod 600 ~/.ssh/id_rsa
-                    
+                  echo "${{ secrets.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
                  ssh -i ${{ secrets.PRIVATE_KEY }} ubuntu@${{ secrets.PUBLIC_EC2_IP }} echo "SSH connection successful"
                  
         - name: Run Ansible playbook to install Nginx
