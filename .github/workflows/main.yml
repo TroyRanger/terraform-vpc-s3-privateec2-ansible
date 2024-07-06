@@ -68,38 +68,25 @@ jobs:
         - name: Checkout code
           uses: actions/checkout@v2
     
-        - name: Configure SSH Access to Public EC2 Instance
+        - name: Set up SSH access to Public EC2 Instance
           run: |
             mkdir -p ~/.ssh
-            ssh-keyscan -H 54.161.100.79 >> ~/.ssh/known_hosts
             echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
             chmod 600 ~/.ssh/id_rsa
-
-        - name: Verify SSH connection
-          run: |
-            ssh -i ~/.ssh/id_rsa ubuntu@54.161.100.79 echo "SSH connection successful"
-    
-        - name: Install Ansible on Public EC2 Instance
-          run: |
-            ssh -i ~/.ssh/id_rsa ubuntu@54.161.100.79 sudo apt update
-            ssh -i ~/.ssh/id_rsa ubuntu@54.161.100.79 sudo apt install -y ansible
-    
-        - name: Copy Ansible Inventory and Playbooks
-          run: |
-            scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no inventory.ini ubuntu@54.161.100.79:/home/ubuntu/inventory.ini
-            scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no nginx_install.yml ubuntu@54.161.100.79:/home/ubuntu/nginx_install.yml
-            scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no nginx_index.yml ubuntu@54.161.100.79:/home/ubuntu/nginx_index.yml
-            scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no trait.pem ubuntu@54.161.100.79:/home/ubuntu/trait.pem
-    
-        - name: Set Correct Permissions for the Private Key on Public EC2 Instance
-          run: |
-            ssh -i ~/.ssh/id_rsa ubuntu@54.161.100.79 chmod 600 /home/ubuntu/trait.pem
-    
-        - name: Run Ansible Playbook to Install Nginx on Private EC2 Instances
-          run: |
-            ssh -i ~/.ssh/id_rsa ubuntu@54.161.100.79 ansible-playbook -i /home/ubuntu/inventory.ini /home/ubuntu/nginx_install.yml
-    
-        - name: Run Ansible Playbook to Deploy index.html on Private EC2 Instances
-          run: |
-            ssh -i ~/.ssh/id_rsa ubuntu@54.161.100.79 ansible-playbook -i /home/ubuntu/inventory.ini /home/ubuntu/nginx_index.yml
+            ssh-keyscan -H 3.86.96.98 >> ~/.ssh/known_hosts
   
+        - name: Verify SSH connection to Public EC2 Instance
+          run: |
+            ssh -i ~/.ssh/id_rsa ubuntu@3.86.96.98 echo "SSH connection successful"
+  
+        - name: Copy Ansible playbooks to Public EC2 Instance
+          run: |
+            scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r ./* ubuntu@3.86.96.98:/home/ubuntu/
+  
+        - name: Run Ansible playbook to install Nginx
+          run: |
+            ssh -i ~/.ssh/id_rsa ubuntu@3.86.96.98 'cd /home/ubuntu && ansible-playbook -i inventory.ini nginx_install.yml'
+  
+        - name: Run Ansible playbook to deploy index.html
+          run: |
+            ssh -i ~/.ssh/id_rsa ubuntu@3.86.96.98 'cd /home/ubuntu && ansible-playbook -i inventory.ini nginx_index.yml'
